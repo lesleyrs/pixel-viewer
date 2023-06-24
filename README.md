@@ -2,7 +2,7 @@
 
 Image viewer created for pixel art specifically, available on Windows and Linux.
 
-The default photo app on windows was giving me some problems with not being able to stay zoomed in while switching images, so I tried making my own version to give a better user experience.
+The default photo app on Windows was giving me some problems with not being able to stay zoomed in while switching images, so I tried making my own version to give a better user experience.
 
 Features:
   - image info in title bar for maximum viewing surface
@@ -12,4 +12,4 @@ Features:
   - arrow keys up/down or scroll wheel to zoom
   - keys z, x, c to rotate either direction or flip image
 
-  There are still some things to improve, as noted in the comments.
+  There are still some things left to improve, as noted in the comments.
