@@ -188,6 +188,7 @@ int main(int argc, char *argv[]) {
       SetTitle(files, texture, scale);
     }
 
+    // swap directions?
     if (IsKeyDown(KEY_W))
       offset.y = offset.y - scrollSpeed / scale - 1;
     if (IsKeyDown(KEY_A))
