@@ -220,6 +220,7 @@ int main(int argc, char *argv[]) {
   UnloadDirectoryFiles(files);
   UnloadTexture(texture);
   CloseWindow();
+  return 0;
 }
 
 // is this correct?
