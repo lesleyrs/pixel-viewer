@@ -19,6 +19,7 @@ unsigned char pressDelay = 30;
 unsigned char heldDelay = 10;
 unsigned char gapLength = 10;
 bool heldDown = false;
+bool fullscreen = false;
 
 void SetTitle(FilePathList, Texture2D, float);
 void ScaleToFit(Texture2D);
@@ -48,21 +49,45 @@ int main(int argc, char *argv[]) {
     BeginDrawing();
     ClearBackground(DARKGRAY);
 
-    // fullscreen gives artifacts so need to use maximized
-    // could also add resize check for maximized/windowed manually
+    if (IsWindowResized()) {
+      ScaleToFit(texture);
+      SetTitle(files, texture, scale);
+    }
+
     if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_F11) ||
         (IsKeyPressed(KEY_ENTER) &&
          (IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT)))) {
-      if (IsWindowMaximized()) {
-        ClearWindowState(FLAG_WINDOW_MAXIMIZED | FLAG_WINDOW_UNDECORATED);
+      if (!fullscreen) {
+        fullscreen = true;
+        SetWindowState(FLAG_WINDOW_UNDECORATED);
+        SetWindowPosition(0, 0);
+        int display = GetCurrentMonitor();
+        // 1 pixel smaller stops flickering when focus is lost
+        SetWindowSize(GetMonitorWidth(display) - 1,
+                      GetMonitorHeight(display) - 1);
         ScaleToFit(texture);
         SetTitle(files, texture, scale);
       } else {
-        SetWindowState(FLAG_WINDOW_MAXIMIZED | FLAG_WINDOW_UNDECORATED);
+        fullscreen = false;
+        if (IsWindowMaximized())
+          ClearWindowState(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TOPMOST |
+                           FLAG_WINDOW_MAXIMIZED);
+        else
+          ClearWindowState(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TOPMOST);
+        int display = GetCurrentMonitor();
+        SetWindowPosition(GetMonitorWidth(display) / 2 - screenWidth / 2,
+                          GetMonitorHeight(display) / 2 - screenHeight / 2);
+        SetWindowSize(screenWidth, screenHeight);
         ScaleToFit(texture);
         SetTitle(files, texture, scale);
       }
     }
+
+    // this shows task bar during alt tab instead of after
+    if (!IsWindowFocused() && fullscreen)
+      ClearWindowState(FLAG_WINDOW_TOPMOST);
+    else if (IsWindowFocused() && fullscreen)
+      SetWindowState(FLAG_WINDOW_TOPMOST);
 
     if (files.count == 0)
       DrawText(TextFormat("%s", empty),
@@ -128,7 +153,7 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    // add grid + zoom towards the image instead (maybe switch to raylib camera)
+    // TODO: add grid + zoom towards the image (maybe switch to raylib camera)
     if (IsKeyDown(KEY_UP) && !IsKeyDown(KEY_DOWN)) {
       scale += minScale + scale / 100;
       if (scale > maxScale)
