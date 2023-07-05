@@ -62,9 +62,8 @@ int main(int argc, char *argv[]) {
         SetWindowState(FLAG_WINDOW_UNDECORATED);
         SetWindowPosition(0, 0);
         int display = GetCurrentMonitor();
-        // 1 pixel smaller stops flickering when focus is lost
-        SetWindowSize(GetMonitorWidth(display) - 1,
-                      GetMonitorHeight(display) - 1);
+        // 1 pixel difference stops flickering when focus is lost
+        SetWindowSize(GetMonitorWidth(display) + 1, GetMonitorHeight(display));
         ScaleToFit(texture);
         SetTitle(files, texture, scale);
       } else {
