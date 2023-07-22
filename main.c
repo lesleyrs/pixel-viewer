@@ -82,7 +82,6 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    // this shows task bar during alt tab instead of after
     if (!IsWindowFocused() && fullscreen)
       ClearWindowState(FLAG_WINDOW_TOPMOST);
     else if (IsWindowFocused() && fullscreen)
@@ -212,7 +211,7 @@ int main(int argc, char *argv[]) {
       SetTitle(files, texture, scale);
     }
 
-    // swap directions?
+    // TODO: swap directions?
     if (IsKeyDown(KEY_W))
       offset.y = offset.y - scrollSpeed / scale - 1;
     if (IsKeyDown(KEY_A))
@@ -247,7 +246,7 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-// is this correct?
+// TODO: is this correct?
 void ScaleToFit(Texture2D texture) {
   offset = (Vector2){0, 0};
   if ((rotation == 90 || rotation == 270) &&
