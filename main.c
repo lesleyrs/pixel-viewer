@@ -23,6 +23,7 @@ bool fullscreen = false;
 
 void SetTitle(FilePathList, Texture2D, float);
 void ScaleToFit(Texture2D);
+void UpdateWindow(FilePathList, Texture2D);
 
 int main(int argc, char *argv[]) {
   SetTraceLogLevel(LOG_WARNING);
@@ -45,49 +46,11 @@ int main(int argc, char *argv[]) {
   Texture2D texture = LoadTexture(files.paths[image]);
   ScaleToFit(texture);
   SetTitle(files, texture, scale);
+
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(DARKGRAY);
-
-    if (IsWindowResized()) {
-      ScaleToFit(texture);
-      SetTitle(files, texture, scale);
-    }
-
-    if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_F11) ||
-        (IsKeyPressed(KEY_ENTER) &&
-         (IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT)))) {
-      if (!fullscreen) {
-        fullscreen = true;
-        SetWindowState(FLAG_WINDOW_UNDECORATED);
-        SetWindowPosition(0, 0);
-        int display = GetCurrentMonitor();
-        /* 1 pixel difference stops exclusive fullscreen but:
-          +1 pixel pop-ups might not show?
-          -1 pixel causes task bar to show up early on alt tab */
-        SetWindowSize(GetMonitorWidth(display) + 1, GetMonitorHeight(display));
-        ScaleToFit(texture);
-        SetTitle(files, texture, scale);
-      } else {
-        fullscreen = false;
-        if (IsWindowMaximized())
-          ClearWindowState(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TOPMOST |
-                           FLAG_WINDOW_MAXIMIZED);
-        else
-          ClearWindowState(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TOPMOST);
-        int display = GetCurrentMonitor();
-        SetWindowPosition(GetMonitorWidth(display) / 2 - screenWidth / 2,
-                          GetMonitorHeight(display) / 2 - screenHeight / 2);
-        SetWindowSize(screenWidth, screenHeight);
-        ScaleToFit(texture);
-        SetTitle(files, texture, scale);
-      }
-    }
-
-    if (!IsWindowFocused() && fullscreen)
-      ClearWindowState(FLAG_WINDOW_TOPMOST);
-    else if (IsWindowFocused() && fullscreen)
-      SetWindowState(FLAG_WINDOW_TOPMOST);
+    UpdateWindow(files, texture);
 
     if (files.count == 0)
       DrawText(TextFormat("%s", empty),
@@ -278,4 +241,46 @@ void SetTitle(FilePathList files, Texture2D texture, float scale) {
   } else {
     SetWindowTitle(TextFormat("[%i/%i] - %s", image, files.count, title));
   }
+}
+
+void UpdateWindow(FilePathList files, Texture2D texture) {
+  if (IsWindowResized()) {
+    ScaleToFit(texture);
+    SetTitle(files, texture, scale);
+  }
+
+  if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_F11) ||
+      (IsKeyPressed(KEY_ENTER) &&
+       (IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT)))) {
+    if (!fullscreen) {
+      fullscreen = true;
+      SetWindowState(FLAG_WINDOW_UNDECORATED);
+      SetWindowPosition(0, 0);
+      int display = GetCurrentMonitor();
+      /* 1 pixel difference stops exclusive fullscreen but:
+        +1 pixel pop-ups might not show?
+        -1 pixel causes task bar to show up early on alt tab */
+      SetWindowSize(GetMonitorWidth(display) + 1, GetMonitorHeight(display));
+      ScaleToFit(texture);
+      SetTitle(files, texture, scale);
+    } else {
+      fullscreen = false;
+      if (IsWindowMaximized())
+        ClearWindowState(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TOPMOST |
+                         FLAG_WINDOW_MAXIMIZED);
+      else
+        ClearWindowState(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TOPMOST);
+      int display = GetCurrentMonitor();
+      SetWindowPosition(GetMonitorWidth(display) / 2 - screenWidth / 2,
+                        GetMonitorHeight(display) / 2 - screenHeight / 2);
+      SetWindowSize(screenWidth, screenHeight);
+      ScaleToFit(texture);
+      SetTitle(files, texture, scale);
+    }
+  }
+
+  if (!IsWindowFocused() && fullscreen)
+    ClearWindowState(FLAG_WINDOW_TOPMOST);
+  else if (IsWindowFocused() && fullscreen)
+    SetWindowState(FLAG_WINDOW_TOPMOST);
 }
