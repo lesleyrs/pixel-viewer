@@ -176,14 +176,13 @@ int main(int argc, char *argv[]) {
       SetTitle(files, texture, scale);
     }
 
-    // TODO: swap directions?
-    if (IsKeyDown(KEY_W))
-      offset.y = offset.y - scrollSpeed / scale - 1;
-    if (IsKeyDown(KEY_A))
-      offset.x = offset.x - scrollSpeed / scale - 1;
     if (IsKeyDown(KEY_S))
-      offset.y = offset.y + scrollSpeed / scale + 1;
+      offset.y = offset.y - scrollSpeed / scale - 1;
     if (IsKeyDown(KEY_D))
+      offset.x = offset.x - scrollSpeed / scale - 1;
+    if (IsKeyDown(KEY_W))
+      offset.y = offset.y + scrollSpeed / scale + 1;
+    if (IsKeyDown(KEY_A))
       offset.x = offset.x + scrollSpeed / scale + 1;
 
     if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))

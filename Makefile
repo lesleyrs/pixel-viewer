@@ -12,6 +12,7 @@ all:
 
 rel:
 	gcc -o $(PROJECT_NAME) main.c $(PROJECT_NAME).res -s -O2 -I$(RAYLIB_PATH) -L$(RAYLIB_PATH) -lraylib -lopengl32 -lgdi32 -lwinmm -std=c99 -Wall -mwindows
+	./$(PROJECT_NAME)
 	
 run: all
 	./$(PROJECT_NAME)
