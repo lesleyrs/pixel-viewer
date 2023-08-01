@@ -46,7 +46,11 @@ int main(int argc, char *argv[]) {
         IsFileExtension(files.paths[i], ".qoi") ||
         IsFileExtension(files.paths[i], ".dds") ||
         IsFileExtension(files.paths[i], ".hdr")) {
+#ifdef _WIN32
       filteredList.paths[filteredList.count] = _strdup(files.paths[i]);
+#else
+      filteredList.paths[filteredList.count] = strdup(files.paths[i]);
+#endif
       filteredList.count++;
     }
   }
