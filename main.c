@@ -1,4 +1,6 @@
 #include "raylib.h"
+#include <stdlib.h>
+#include <string.h>
 
 static const char *title = "Pixel Viewer";
 static const char *empty = "No images found in this folder";
@@ -21,38 +23,56 @@ unsigned char gapLength = 10;
 bool heldDown = false;
 bool fullscreen = false;
 
-void SetTitle(FilePathList, Texture2D, float);
-void ScaleToFit(Texture2D);
-void UpdateWindow(FilePathList, Texture2D);
+FilePathList filteredList;
+Texture2D texture;
+
+void SetTitle();
+void ScaleToFit();
+void UpdateWindow();
 
 int main(int argc, char *argv[]) {
   SetTraceLogLevel(LOG_WARNING);
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   SetTargetFPS(60);
   InitWindow(screenWidth, screenHeight, title);
-  // LoadDirectoryFiles uses less memory + combine filetypes?
-  // Can't view .ico or .gif files but others should work
-  FilePathList files = LoadDirectoryFilesEx(".", ".png", false);
+  FilePathList files = LoadDirectoryFiles(".");
+  filteredList.capacity = files.count;
+  filteredList.count = 0;
+  filteredList.paths = (char **)malloc(filteredList.capacity * sizeof(char *));
+  // default raylib supported file types
+  // TODO: need to add gif too
+  for (int i = 0; i < files.count; i++) {
+    if (IsFileExtension(files.paths[i], ".png") ||
+        IsFileExtension(files.paths[i], ".qoi") ||
+        IsFileExtension(files.paths[i], ".dds") ||
+        IsFileExtension(files.paths[i], ".hdr")) {
+      filteredList.paths[filteredList.count] = _strdup(files.paths[i]);
+      filteredList.count++;
+    }
+  }
+  UnloadDirectoryFiles(files);
   if (argc > 1) {
-    for (int i = 0; i < files.count; i++) {
-      // "open with" opens incorrect directory instead of clicked file
+    for (int i = 0; i < filteredList.count; i++) {
+      // TODO: "open with" opens incorrect directory instead of clicked file?
       // windows photo viewer doesn't have this problem
-      if (TextIsEqual(GetFileName(argv[1]), GetFileName(files.paths[i]))) {
-        image = i;
+      if (TextIsEqual(GetFileName(argv[1]),
+                      GetFileName(filteredList.paths[i]))) {
+        texture = LoadTexture(filteredList.paths[image = i]);
         break;
       }
     }
+  } else if (filteredList.count) {
+    texture = LoadTexture(filteredList.paths[0]);
   }
-  Texture2D texture = LoadTexture(files.paths[image]);
-  ScaleToFit(texture);
-  SetTitle(files, texture, scale);
+  ScaleToFit();
+  SetTitle();
 
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(DARKGRAY);
-    UpdateWindow(files, texture);
+    UpdateWindow();
 
-    if (files.count == 0)
+    if (filteredList.count == 0)
       DrawText(TextFormat("%s", empty),
                GetRenderWidth() / 2 - MeasureText(empty, fontSize) / 2,
                GetRenderHeight() / 2 - fontSize / 2, fontSize, RAYWHITE);
@@ -60,8 +80,8 @@ int main(int argc, char *argv[]) {
     int key = GetKeyPressed();
     if (key >= KEY_ZERO && key <= KEY_NINE) {
       gapLength = (key - KEY_ZERO) * 10;
-      ScaleToFit(texture);
-      SetTitle(files, texture, scale);
+      ScaleToFit();
+      SetTitle();
     }
 
     if ((IsKeyReleased(KEY_LEFT) || IsKeyReleased(KEY_RIGHT) ||
@@ -89,16 +109,16 @@ int main(int argc, char *argv[]) {
           heldDown = true;
         image -= 1;
         UnloadTexture(texture);
-        texture = LoadTexture(files.paths[image]);
-        ScaleToFit(texture);
-        SetTitle(files, texture, scale);
+        texture = LoadTexture(filteredList.paths[image]);
+        ScaleToFit();
+        SetTitle();
       }
     }
     if (((IsKeyDown(KEY_RIGHT) && !IsKeyDown(KEY_LEFT) &&
           (!IsMouseButtonDown(MOUSE_BUTTON_LEFT))) ||
          (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !IsKeyDown(KEY_LEFT) &&
           GetMouseX() >= GetRenderWidth() / 2)) &&
-        image < files.count - 1 && files.count != 0) {
+        image < filteredList.count - 1 && filteredList.count != 0) {
       if (timer < delay)
         timer += 1;
       if (!heldDown || timer >= delay) {
@@ -110,9 +130,9 @@ int main(int argc, char *argv[]) {
           heldDown = true;
         image += 1;
         UnloadTexture(texture);
-        texture = LoadTexture(files.paths[image]);
-        ScaleToFit(texture);
-        SetTitle(files, texture, scale);
+        texture = LoadTexture(filteredList.paths[image]);
+        ScaleToFit();
+        SetTitle();
       }
     }
 
@@ -121,13 +141,13 @@ int main(int argc, char *argv[]) {
       scale += minScale + scale / 100;
       if (scale > maxScale)
         scale = maxScale;
-      SetTitle(files, texture, scale);
+      SetTitle();
     }
     if (IsKeyDown(KEY_DOWN) && !IsKeyDown(KEY_UP)) {
       scale -= minScale + scale / 100;
       if (scale < minScale)
         scale = minScale;
-      SetTitle(files, texture, scale);
+      SetTitle();
     }
 
     if (GetMouseWheelMove()) {
@@ -139,7 +159,7 @@ int main(int argc, char *argv[]) {
         scale = maxScale;
       if (scale < minScale)
         scale = minScale;
-      SetTitle(files, texture, scale);
+      SetTitle();
     }
 
     // can't be sure if non-square image fits so we scale it
@@ -147,33 +167,33 @@ int main(int argc, char *argv[]) {
       rotation -= 90;
       if (rotation < 0)
         rotation += 360;
-      ScaleToFit(texture);
-      SetTitle(files, texture, scale);
+      ScaleToFit();
+      SetTitle();
     }
     if (IsKeyPressed(KEY_X)) {
       rotation += 90;
       if (rotation >= 360)
         rotation -= 360;
-      ScaleToFit(texture);
-      SetTitle(files, texture, scale);
+      ScaleToFit();
+      SetTitle();
     }
     if (IsKeyPressed(KEY_C)) {
       rotation += 180;
       if (rotation >= 360)
         rotation -= 360;
-      ScaleToFit(texture);
-      SetTitle(files, texture, scale);
+      ScaleToFit();
+      SetTitle();
     }
 
     if (IsKeyPressed(KEY_R)) {
       offset = (Vector2){0, 0};
       scale = 100;
       rotation = 0;
-      SetTitle(files, texture, scale);
+      SetTitle();
     }
     if (IsKeyPressed(KEY_F)) {
-      ScaleToFit(texture);
-      SetTitle(files, texture, scale);
+      ScaleToFit();
+      SetTitle();
     }
 
     if (IsKeyDown(KEY_S))
@@ -204,14 +224,15 @@ int main(int argc, char *argv[]) {
         rotation, WHITE);
     EndDrawing();
   }
-  UnloadDirectoryFiles(files);
+  // freeing this is slow, why?
+  // UnloadDirectoryFiles(filteredList);
   UnloadTexture(texture);
   CloseWindow();
   return 0;
 }
 
 // TODO: is this correct?
-void ScaleToFit(Texture2D texture) {
+void ScaleToFit() {
   offset = (Vector2){0, 0};
   if ((rotation == 90 || rotation == 270) &&
       texture.height > texture.width * GetRenderWidth() / GetRenderHeight())
@@ -231,21 +252,23 @@ void ScaleToFit(Texture2D texture) {
   scale -= gapLength * (scale / 100);
 }
 
-void SetTitle(FilePathList files, Texture2D texture, float scale) {
+void SetTitle() {
   if (texture.id > 0) {
     SetWindowTitle(TextFormat("[%i/%i] [%dx%d] %s %.0f%% %i° %u%% - %s",
-                              image + 1, files.count, texture.width,
-                              texture.height, GetFileName(files.paths[image]),
-                              scale, (int)rotation, 100 - gapLength, title));
+                              image + 1, filteredList.count, texture.width,
+                              texture.height,
+                              GetFileName(filteredList.paths[image]), scale,
+                              (int)rotation, 100 - gapLength, title));
   } else {
-    SetWindowTitle(TextFormat("[%i/%i] - %s", image, files.count, title));
+    SetWindowTitle(
+        TextFormat("[%i/%i] - %s", image, filteredList.count, title));
   }
 }
 
-void UpdateWindow(FilePathList files, Texture2D texture) {
+void UpdateWindow() {
   if (IsWindowResized()) {
-    ScaleToFit(texture);
-    SetTitle(files, texture, scale);
+    ScaleToFit();
+    SetTitle();
   }
 
   if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_F11) ||
@@ -260,8 +283,8 @@ void UpdateWindow(FilePathList files, Texture2D texture) {
         +1 pixel pop-ups might not show?
         -1 pixel causes task bar to show up early on alt tab */
       SetWindowSize(GetMonitorWidth(display) + 1, GetMonitorHeight(display));
-      ScaleToFit(texture);
-      SetTitle(files, texture, scale);
+      ScaleToFit();
+      SetTitle();
     } else {
       fullscreen = false;
       if (IsWindowMaximized())
@@ -273,8 +296,8 @@ void UpdateWindow(FilePathList files, Texture2D texture) {
       SetWindowPosition(GetMonitorWidth(display) / 2 - screenWidth / 2,
                         GetMonitorHeight(display) / 2 - screenHeight / 2);
       SetWindowSize(screenWidth, screenHeight);
-      ScaleToFit(texture);
-      SetTitle(files, texture, scale);
+      ScaleToFit();
+      SetTitle();
     }
   }
 
