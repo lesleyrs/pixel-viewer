@@ -224,8 +224,7 @@ int main(int argc, char *argv[]) {
         rotation, WHITE);
     EndDrawing();
   }
-  // freeing this is slow, why?
-  // UnloadDirectoryFiles(filteredList);
+  RL_FREE(filteredList.paths);
   UnloadTexture(texture);
   CloseWindow();
   return 0;
