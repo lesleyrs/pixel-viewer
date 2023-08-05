@@ -32,7 +32,7 @@ void UpdateWindow();
 
 int main(int argc, char *argv[]) {
   SetTraceLogLevel(LOG_WARNING);
-  SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+  SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
   SetTargetFPS(60);
   InitWindow(screenWidth, screenHeight, title);
   FilePathList files = LoadDirectoryFiles(".");
