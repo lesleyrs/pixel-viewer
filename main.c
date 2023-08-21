@@ -140,9 +140,8 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    // TODO: add grid with raylib camera?
+    // TODO: add grid + zoom towards the image (maybe switch to raylib camera)
     if (IsKeyDown(KEY_UP) && !IsKeyDown(KEY_DOWN)) {
-      offset = (Vector2){0, 0};
       scale += minScale + scale / 100;
       if (scale > maxScale)
         scale = maxScale;
@@ -156,8 +155,6 @@ int main(int argc, char *argv[]) {
     }
 
     if (GetMouseWheelMove()) {
-      if (GetMouseWheelMove() > 0)
-        offset = (Vector2){0, 0};
       if (scale == minScale)
         scale += (GetMouseWheelMove() * 100 - minScale);
       else
