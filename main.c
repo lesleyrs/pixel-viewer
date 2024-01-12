@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -35,7 +36,12 @@ int main(int argc, char *argv[]) {
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
   SetTargetFPS(60);
   InitWindow(screenWidth, screenHeight, title);
-  FilePathList files = LoadDirectoryFiles(".");
+  FilePathList files;
+  if (argc > 1) {
+    files = LoadDirectoryFiles(GetDirectoryPath(argv[1]));
+  } else {
+    files = LoadDirectoryFiles(".");
+  }
   filteredList.capacity = files.count;
   filteredList.count = 0;
   filteredList.paths = (char **)malloc(filteredList.capacity * sizeof(char *));
