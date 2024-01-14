@@ -63,8 +63,6 @@ int main(int argc, char *argv[]) {
   UnloadDirectoryFiles(files);
   if (argc > 1) {
     for (int i = 0; i < filteredList.count; i++) {
-      // TODO: "open with" opens incorrect directory instead of clicked file?
-      // windows photo viewer doesn't have this problem
       if (TextIsEqual(GetFileName(argv[1]),
                       GetFileName(filteredList.paths[i]))) {
         texture = LoadTexture(filteredList.paths[image = i]);
