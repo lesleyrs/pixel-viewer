@@ -1,6 +1,6 @@
 PROJECT_NAME = pixel-viewer
 RAYLIB_PATH = ../raylib/src
-CFLAGS = -s -std=c99 -Wall -Wextra
+CFLAGS = -s -std=gnu99 -Wall -Wextra
 
 all:
     ifeq ($(OS),Windows_NT)
