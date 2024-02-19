@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
   filteredList.paths = (char **)malloc(filteredList.capacity * sizeof(char *));
   // default raylib supported file types
   // TODO: need to add gif too
-  for (int i = 0; i < files.count; i++) {
+  for (unsigned int i = 0; i < files.count; i++) {
     if (IsFileExtension(files.paths[i], ".png") ||
         IsFileExtension(files.paths[i], ".qoi") ||
         IsFileExtension(files.paths[i], ".dds") ||
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
   }
   UnloadDirectoryFiles(files);
   if (argc > 1) {
-    for (int i = 0; i < filteredList.count; i++) {
+    for (unsigned int i = 0; i < filteredList.count; i++) {
       if (TextIsEqual(GetFileName(argv[1]),
                       GetFileName(filteredList.paths[i]))) {
         texture = LoadTexture(filteredList.paths[image = i]);
