@@ -2,7 +2,7 @@
 
 Image viewer created for pixel art specifically, available on Windows and Linux.
 
-The default photo app on Windows was giving me some problems with not being able to stay zoomed in while switching images, so I tried making my own version to give a better user experience.
+The default photo app on Windows does not let you switch between images if the image is zoomed in too far, which is always the case with small pixel art. This tool fixes that problem, although it's not as polished.
 
 Features:
   - image info in title bar for maximum viewing surface
