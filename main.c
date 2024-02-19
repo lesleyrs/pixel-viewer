@@ -208,6 +208,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (IsKeyPressed(KEY_E)) {
+      // FIXME: why you have to press twice to make it execute?
       system(TextFormat("%s %s", editor, filteredList.paths[image]));
     }
 
