@@ -1,10 +1,10 @@
 #include "raylib.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 static const char *title = "Pixel Viewer";
 static const char *empty = "No images found in this folder";
+char *editor = "aseprite";
 
 Vector2 offset = {0, 0};
 float scale = 100;
@@ -36,6 +36,9 @@ int main(int argc, char *argv[]) {
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
   SetTargetFPS(60);
   InitWindow(screenWidth, screenHeight, title);
+  if (getenv("PIXEL_EDITOR") != NULL) {
+    editor = getenv("PIXEL_EDITOR");
+  }
   FilePathList files;
   if (argc > 1) {
     files = LoadDirectoryFiles(GetDirectoryPath(argv[1]));
@@ -204,6 +207,10 @@ int main(int argc, char *argv[]) {
       SetTitle();
     }
 
+    if (IsKeyPressed(KEY_E)) {
+      system(TextFormat("%s %s", editor, filteredList.paths[image]));
+    }
+
     if (IsKeyDown(KEY_S))
       offset.y = offset.y - scrollSpeed / scale - 1;
     if (IsKeyDown(KEY_D))
@@ -232,7 +239,7 @@ int main(int argc, char *argv[]) {
         rotation, WHITE);
     EndDrawing();
   }
-  RL_FREE(filteredList.paths);
+  free(filteredList.paths);
   UnloadTexture(texture);
   CloseWindow();
   return 0;
