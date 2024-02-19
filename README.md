@@ -11,5 +11,4 @@ Features:
   - arrow keys left/right or left mouse click to switch images
   - arrow keys up/down or scroll wheel to zoom
   - keys z, x, c to rotate either direction or flip image
-
-  There are still some things left to improve, as noted in the comments.
+  - launch aseprite with `e`, set PIXEL_EDITOR variable to change command
